@@ -61,6 +61,63 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+const disPlayMovements = function (movement) {
+  containerMovements.innerHTML = '';
+  // console.log(movement);
+  movement.forEach(function (mov, i) {
+    const type = mov > 0 ? 'deposit' : 'withdrawal';
+
+    const html = `
+    <div class='movements__row'>
+      <div class='movements__type movements__type--${type}'>${
+      i + 1
+    } ${type}</div>
+      <div class='movements__value'>${mov}€</div>
+    </div>`;
+    containerMovements.insertAdjacentHTML('afterbegin', html);
+  });
+};
+disPlayMovements(account1.movements);
+
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${balance}€`;
+};
+calcDisplayBalance(account1.movements);
+
+const calcDisplaySummary = function (movements) {
+  const allIn = movements
+    .filter((mov) => mov > 0)
+    .reduce((acu, cur) => acu + cur, 0);
+  labelSumIn.textContent = `${allIn}€`;
+  const allOut = Math.abs(
+    movements.filter((mov) => mov < 0).reduce((acu, cur) => acu + cur, 0)
+  );
+  labelSumOut.textContent = `${allOut}€`;
+
+  // console.log(Math.abs(allOut));
+  const allInterest = movements
+    .filter((mov) => mov > 0)
+    .map((deposit) => (deposit * 1.2) / 100)
+    .filter((int) => int > 1)
+    .reduce((acu, cur) => acu + cur, 0);
+  labelSumInterest.textContent = `${allInterest}€`;
+};
+
+calcDisplaySummary(account1.movements);
+
+const createUserName = function (accounts) {
+  accounts.forEach(function (acc) {
+    acc.userName = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map((name) => name[0])
+      .join('');
+    // console.log(acc);
+  });
+};
+createUserName(accounts);
+
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
