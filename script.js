@@ -77,34 +77,30 @@ const disPlayMovements = function (movement) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-disPlayMovements(account1.movements);
 
 const calcDisplayBalance = function (movements) {
   const balance = movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = `${balance}€`;
 };
-calcDisplayBalance(account1.movements);
 
-const calcDisplaySummary = function (movements) {
-  const allIn = movements
+const calcDisplaySummary = function (acc) {
+  const allIn = acc.movements
     .filter((mov) => mov > 0)
     .reduce((acu, cur) => acu + cur, 0);
   labelSumIn.textContent = `${allIn}€`;
   const allOut = Math.abs(
-    movements.filter((mov) => mov < 0).reduce((acu, cur) => acu + cur, 0)
+    acc.movements.filter((mov) => mov < 0).reduce((acu, cur) => acu + cur, 0)
   );
   labelSumOut.textContent = `${allOut}€`;
 
   // console.log(Math.abs(allOut));
-  const allInterest = movements
+  const allInterest = acc.movements
     .filter((mov) => mov > 0)
-    .map((deposit) => (deposit * 1.2) / 100)
+    .map((deposit) => (deposit * acc.interestRate) / 100)
     .filter((int) => int > 1)
     .reduce((acu, cur) => acu + cur, 0);
   labelSumInterest.textContent = `${allInterest}€`;
 };
-
-calcDisplaySummary(account1.movements);
 
 const createUserName = function (accounts) {
   accounts.forEach(function (acc) {
@@ -117,6 +113,38 @@ const createUserName = function (accounts) {
   });
 };
 createUserName(accounts);
+
+let currentAccount;
+
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+  // console.log('login');
+
+  currentAccount = accounts.find(
+    (acc) => acc.userName === inputLoginUsername.value
+  );
+  console.log(currentAccount);
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    //display ui and welcome
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+
+    containerApp.style.opacity = 100;
+    //clear fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    //display movements
+    disPlayMovements(currentAccount.movements);
+
+    //display balance
+    calcDisplayBalance(currentAccount.movements);
+    //display summary
+    calcDisplaySummary(currentAccount);
+  }
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
